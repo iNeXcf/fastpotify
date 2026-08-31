@@ -748,10 +748,7 @@ fn track_row_contents(ui: &mut Ui, app: &mut App, row: TrackRow<'_>) -> Option<R
     let width = ui.available_width();
     let (rect, response) = ui.allocate_exact_size(vec2(width, row_height), Sense::click_and_drag());
     let rect = rect.translate(vec2(0.0, row.shift));
-    let unavailable = match row.item {
-        PlayableItem::Track(track) => track.is_playable == Some(false) || track.is_local,
-        PlayableItem::Episode(_) => false,
-    };
+    let unavailable = !row.item.is_available();
     response.widget_info(|| {
         egui::WidgetInfo::selected(
             egui::WidgetType::Button,

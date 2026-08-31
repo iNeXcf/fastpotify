@@ -263,6 +263,7 @@ still in progress.
 | `B` | Like or unlike the playing song |
 | `S` / `R` | Shuffle / cycle repeat |
 | `Q` | Queue panel |
+| `A`–`Z` | Jump in the song list (Enter plays, Esc clears) |
 | `Ctrl+F` or `/` | Search |
 | `Ctrl+B` | Show or hide the sidebar |
 | `Alt+←` / `Alt+→` | Back or forward |
@@ -275,6 +276,18 @@ still in progress.
 | `Ctrl+Q` | Quit |
 
 On macOS, `Cmd` replaces `Ctrl`.
+
+Typing letters on a playlist, album, or Liked Songs page jumps to the first
+song whose title starts with what you typed, the way file explorers jump to
+files: more letters narrow the search, the same first letter again moves to
+the next match, Enter starts playing, and Esc clears it. Matching forgives
+case, accents, punctuation, spaces, and a leading The (`dont` finds
+"Don't Stop", `letit` finds "Let It Be"); Space plays or pauses until a
+search is active, then it types a space; and a Loose type-ahead setting
+also matches letters anywhere in a title — as an unbroken run first, then
+scattered in order. While such a list is
+open, `M`, `S`, `R`, `Q`, and `L` belong to that search; they keep their
+shortcuts everywhere else, and the setting can be turned off in Settings.
 
 ## Controlling it from outside
 

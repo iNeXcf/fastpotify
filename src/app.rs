@@ -268,6 +268,9 @@ pub struct App {
     pub recents_view: Vec<crate::api::models::PlayHistory>,
     pub recents_generation: u64,
     pub queue_tab: QueueTab,
+    /// Changes whenever account-scoped data is discarded, so UI caches
+    /// cannot reuse rows from the previous account.
+    pub data_revision: u64,
     pub search: SearchState,
     pub playlist_pages: HashMap<String, PlaylistPage>,
     load_generation: u64,
@@ -587,6 +590,7 @@ impl App {
                 .as_deref()
                 .and_then(QueueTab::decode)
                 .unwrap_or_default(),
+            data_revision: 0,
             search: SearchState::default(),
             playlist_pages: HashMap::new(),
             load_generation: 0,
@@ -1482,6 +1486,7 @@ impl App {
     }
 
     fn reset_data(&mut self) {
+        self.data_revision = self.data_revision.wrapping_add(1);
         self.library = Library::default();
         self.liked_songs = crate::liked::LikedSongs::default();
         self.liked_recheck_at = None;
@@ -3957,6 +3962,7 @@ impl App {
                 {
                     return;
                 }
+                let mut can_continue = false;
                 let mut uris = Vec::new();
                 let mut adders: Vec<String> = Vec::new();
                 let mut tracks = Vec::new();
@@ -3968,6 +3974,7 @@ impl App {
                         {
                             // The initial request was already in flight when
                             // a longer cached prefix was restored.
+                            can_continue = true;
                         }
                         Ok(items) => {
                             tracks = items
@@ -3993,6 +4000,7 @@ impl App {
                             page.contributors.extend(adders.iter().cloned());
                             page.items.absorb(offset, items);
                             page.items_generation = generation;
+                            can_continue = true;
                         }
                         Err(error) => page.items.fail(friendly_page_error(&error)),
                     }
@@ -4005,7 +4013,7 @@ impl App {
                 self.sample_playlist_tail(&id);
                 self.checkpoint_playlist_cache(&id);
                 // A sorted table means the whole list, not the loaded part.
-                if self.table_sorts.contains_key(&Page::Playlist(id.clone())) {
+                if can_continue && self.table_sorts.contains_key(&Page::Playlist(id.clone())) {
                     self.load_more(Page::Playlist(id));
                 }
             }
@@ -4492,6 +4500,7 @@ impl App {
                 self.request_contains(uris);
             }
             ApiResponse::AlbumTracks { id, offset, result } => {
+                let succeeded = result.is_ok();
                 let mut uris = Vec::new();
                 if let Some(page) = self.album_pages.get_mut(&id) {
                     match result {
@@ -4504,7 +4513,7 @@ impl App {
                 }
                 self.request_contains(uris);
                 // A sorted table means the whole list, not the loaded part.
-                if self.table_sorts.contains_key(&Page::Album(id.clone())) {
+                if succeeded && self.table_sorts.contains_key(&Page::Album(id.clone())) {
                     self.load_more(Page::Album(id));
                 }
             }
@@ -11606,6 +11615,32 @@ mod tests {
         assert_eq!(
             page.items.items[0].playable().map(PlayableItem::uri),
             Some("spotify:track:new")
+        );
+    }
+
+    #[test]
+    fn a_failed_sorted_page_waits_for_an_explicit_retry() {
+        let mut app = cached_liked_app();
+        app.table_sorts.insert(
+            Page::LikedSongs,
+            TableSort {
+                column: SortColumn::Title,
+                ascending: true,
+            },
+        );
+        app.refresh_liked_songs();
+        assert!(app.library.liked.loading);
+        let generation = app.liked_songs.generation;
+        app.handle_api(ApiResponse::SavedTracks {
+            offset: 0,
+            generation,
+            account_id: Some("alice".into()),
+            result: Err(crate::api::ApiError::Network("offline".into())),
+        });
+        assert!(!app.library.liked.loading);
+        assert_eq!(
+            app.library.liked.error.as_deref(),
+            Some("network error: offline")
         );
     }
 
