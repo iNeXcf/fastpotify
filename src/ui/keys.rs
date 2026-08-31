@@ -19,6 +19,10 @@ pub fn handle(app: &mut App, ctx: &egui::Context) {
     // A focused song row still takes Ctrl+arrow to change songs; a text
     // field uses those keys to move its caret.
     let editing_text = ctx.text_edit_focused();
+    // On the song lists, type-ahead owns the plain letters: M, S, R, Q, and
+    // L type into the search instead of meaning mute, shuffle, repeat,
+    // queue, and lyrics. Everywhere else they keep their shortcuts.
+    let typeahead_jumps = super::typeahead::owns_keyboard(app, ctx);
     let mut actions = Vec::new();
     ctx.input_mut(|input| {
         let mut key = |modifiers: Modifiers, key: Key, action: Action| {
@@ -114,12 +118,18 @@ pub fn handle(app: &mut App, ctx: &egui::Context) {
             );
             key(Modifiers::SHIFT, Key::ArrowLeft, Action::SeekBy(-10_000));
             key(Modifiers::SHIFT, Key::ArrowRight, Action::SeekBy(10_000));
-            key(Modifiers::NONE, Key::Space, Action::TogglePlay);
-            key(Modifiers::NONE, Key::M, Action::ToggleMute);
-            key(Modifiers::NONE, Key::S, Action::ToggleShuffle);
-            key(Modifiers::NONE, Key::R, Action::CycleRepeat);
-            key(Modifiers::NONE, Key::Q, Action::ToggleQueuePanel);
-            key(Modifiers::NONE, Key::L, Action::ToggleLyricsPanel);
+            // The list handles Space too, so letters and Space are interpreted
+            // in their real event order when they arrive in one frame.
+            if !typeahead_jumps {
+                key(Modifiers::NONE, Key::Space, Action::TogglePlay);
+            }
+            if !typeahead_jumps {
+                key(Modifiers::NONE, Key::M, Action::ToggleMute);
+                key(Modifiers::NONE, Key::S, Action::ToggleShuffle);
+                key(Modifiers::NONE, Key::R, Action::CycleRepeat);
+                key(Modifiers::NONE, Key::Q, Action::ToggleQueuePanel);
+                key(Modifiers::NONE, Key::L, Action::ToggleLyricsPanel);
+            }
             key(Modifiers::NONE, Key::Slash, Action::FocusSearch);
         }
     });
@@ -194,6 +204,7 @@ pub const SHORTCUTS: &[(&str, &str)] = &[
     ("Q", "Show the queue"),
     ("L", "Show the lyrics"),
     ("Esc", "Lyrics: leave full screen"),
+    ("A–Z", "Jump in the song list (Enter plays, Esc clears)"),
     (platform_shortcut("Ctrl+F  or  /", "Cmd+F  or  /"), "Search"),
     (SIDEBAR_SHORTCUT, "Show or hide the sidebar"),
     ("Alt+←  /  Alt+→", "Back or forward"),

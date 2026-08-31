@@ -1,7 +1,7 @@
 ---
 redirect_from: /using-fastpotify/
 title: Everyday Use
-description: Library ordering and local play history.
+description: Library ordering, local play history, and type-ahead navigation.
 nav_order: 3
 ---
 
@@ -272,3 +272,15 @@ scroll and highlight motion. The side panel keeps its usual appearance.
 | Dark theme | Light theme |
 | --- | --- |
 | ![Full-screen lyrics with the dark player bar](/assets/images/lyrics-fullscreen-dark.png) | ![Full-screen lyrics with the light player bar](/assets/images/lyrics-fullscreen-light.png) |
+
+## Jumping to a song by typing
+
+Enable **Type-ahead in song lists** in Settings to let plain letters jump to
+matching titles in playlists, albums, Liked Songs, and Top Songs. The match
+ignores case, accents, punctuation, spaces, and leading articles. **Loose
+type-ahead** also finds an unbroken run or letters scattered in order.
+
+The matched row is highlighted. Enter plays it, Backspace edits the query,
+and Escape or two seconds without typing clears it. Because a letter cannot
+be both search text and a shortcut, `M`, `S`, `R`, `Q`, and `L` do not run
+their usual shortcuts on those pages while type-ahead is enabled.
