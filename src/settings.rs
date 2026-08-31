@@ -259,6 +259,13 @@ pub struct Settings {
     /// Linux desktops usually paste the primary selection on middle click.
     /// Windows always autoscrolls and macOS never does.
     pub middle_click_autoscroll: bool,
+
+    /// Plain letters jump to the matching song in the track lists, the
+    /// way file explorers jump to files.
+    pub typeahead_jump: bool,
+    /// Type-ahead also fits when the typed letters appear anywhere in a
+    /// title, in order, not only at its start.
+    pub typeahead_loose: bool,
     pub search_history: Vec<String>,
     pub show_shortcut_hints: bool,
     /// An optional personal Spotify Web API application id. The shared
@@ -412,6 +419,8 @@ impl Default for Settings {
             queue_width: 360.0,
             tracklist_compact: false,
             middle_click_autoscroll: false,
+            typeahead_jump: false,
+            typeahead_loose: true,
             search_history: Vec::new(),
             show_shortcut_hints: true,
             web_client_id: None,
@@ -1053,6 +1062,8 @@ mod tests {
     fn older_settings_keep_the_sidebar_visible() {
         let settings: Settings = serde_json::from_str("{}").unwrap();
         assert!(settings.sidebar_visible);
+        assert!(settings.typeahead_jump);
+        assert!(!settings.typeahead_loose);
     }
 
     #[test]
@@ -1436,6 +1447,19 @@ mod tests {
             settings.personal_app_nudge_at
         );
         assert!(restored.personal_app_intro_seen);
+    }
+
+    #[test]
+    fn typeahead_choices_round_trip() {
+        let settings = Settings {
+            typeahead_jump: false,
+            typeahead_loose: true,
+            ..Settings::default()
+        };
+        let json = serde_json::to_string(&settings).unwrap();
+        let restored: Settings = serde_json::from_str(&json).unwrap();
+        assert!(!restored.typeahead_jump);
+        assert!(restored.typeahead_loose);
     }
 }
 
