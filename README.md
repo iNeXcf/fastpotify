@@ -453,7 +453,7 @@ still in progress.
 | `B` | Like or unlike the playing song |
 | `S` / `R` | Shuffle / cycle repeat |
 | `Q` | Queue panel |
-| `A`–`Z` | Jump in the song list (Enter plays, Esc clears) |
+| `A`–`Z` | Jump in the song list when enabled (Enter plays, Esc clears) |
 | `Ctrl+F` or `/` | Search |
 | `Ctrl+B` | Show or hide the sidebar |
 | `Alt+←` / `Alt+→` | Back or forward |
@@ -469,17 +469,20 @@ still in progress.
 
 On macOS, `Cmd` replaces `Ctrl`.
 
-Typing letters on a playlist, album, or Liked Songs page jumps to the first
-song whose title starts with what you typed, the way file explorers jump to
-files: more letters narrow the search, the same first letter again moves to
-the next match, Enter starts playing, and Esc clears it. Matching forgives
-case, accents, punctuation, spaces, and a leading The (`dont` finds
-"Don't Stop", `letit` finds "Let It Be"); Space plays or pauses until a
-search is active, then it types a space; and a Loose type-ahead setting
-also matches letters anywhere in a title — as an unbroken run first, then
-scattered in order. While such a list is
-open, `M`, `S`, `R`, `Q`, and `L` belong to that search; they keep their
-shortcuts everywhere else, and the setting can be turned off in Settings.
+With Type-ahead in song lists enabled, typing letters on a playlist, album,
+or Liked Songs page jumps to the first song whose title starts with what you
+typed, the way file explorers jump to files: more letters narrow the search,
+and with Loose type-ahead off, the same first letter again moves to the next
+match. Enter starts playing and Esc clears it. Matching forgives case,
+accents, punctuation, spaces, and a leading The (`dont` finds "Don't Stop",
+`letit` finds "Let It Be"); Space
+plays or pauses until a search is active, then it types a space; and a Loose
+type-ahead setting also matches letters anywhere in a title — as an unbroken
+run first, then scattered in order. A letter cannot be both a search and a
+shortcut, so while such a list is open, `M`, `S`, `R`, `Q`, and `L` type into
+the search instead of controlling mute, shuffle, repeat, queue, and lyrics.
+Those shortcuts keep working everywhere else. Type-ahead is off by default
+and can be enabled in Settings.
 
 On Windows, since 0.8.0, middle-click a scrolling list and move the pointer to
 autoscroll. Click, press Esc, use the wheel or switch windows to stop.
