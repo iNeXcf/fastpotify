@@ -1,7 +1,7 @@
 pkgbase = fastpotify-plus-git
 	pkgdesc = Fastpotify+ native Spotify client with direct type-ahead navigation
-	pkgver = 0.5.0.r387.5fcf515
-	pkgrel = 2
+	pkgver = 0.5.0.r390.4f5457c
+	pkgrel = 1
 	url = https://github.com/iNeXcf/fastpotify
 	arch = x86_64
 	arch = aarch64
