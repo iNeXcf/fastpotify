@@ -58,7 +58,7 @@ on:
       - reopened
 # roles: all # Roles processed as role check in pre-activation job
 
-permissions: {workflows}
+permissions: {}
 
 concurrency:
   group: "gh-aw-${{ github.workflow }}-${{ github.event.issue.number || github.run_id }}"
