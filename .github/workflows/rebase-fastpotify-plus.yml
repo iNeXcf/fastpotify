@@ -82,10 +82,13 @@ jobs:
       - name: Update the patch branch
         if: steps.rebase.outputs.changed == 'true'
         env:
-          GH_TOKEN: ${{ github.token }}
+          # GITHUB_TOKEN has no workflows permission, so pushes that carry
+          # upstream workflow changes need this token instead.
+          GH_TOKEN: ${{ secrets.REBASE_PUSH_TOKEN }}
           OLD_HEAD: ${{ steps.rebase.outputs.old_head }}
         run: |
           set -euo pipefail
+          test -n "$GH_TOKEN"
           gh auth setup-git
           git push \
             --force-with-lease="refs/heads/${PATCH_BRANCH}:${OLD_HEAD}" \
