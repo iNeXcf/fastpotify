@@ -1,6 +1,6 @@
 # Maintainer: iNeXcf
 pkgname=fastpotify-plus-git
-pkgver=0.5.0.r41.5fcf515
+pkgver=0.5.0.r387.5fcf515
 pkgrel=1
 pkgdesc="Fastpotify+ native Spotify client with direct type-ahead navigation"
 arch=('x86_64' 'aarch64')
@@ -20,8 +20,10 @@ sha256sums=('SKIP')
 
 pkgver() {
   cd "${srcdir}/fastpotify-plus"
-  git describe --long --tags --abbrev=7 |
-    sed 's/^v//;s/-\(rc\|alpha\|beta\)\([0-9]*\)-/\1\2-/;s/-/.r/;s/-g/./'
+  version=$(sed -n 's/^version = "\(.*\)"$/\1/p' Cargo.toml)
+  version=${version/-/}
+  printf '%s.r%s.%s' "$version" "$(git rev-list --count HEAD)" \
+    "$(git rev-parse --short=7 HEAD)"
 }
 
 prepare() {
