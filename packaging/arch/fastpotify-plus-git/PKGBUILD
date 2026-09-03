@@ -1,6 +1,6 @@
 # Maintainer: iNeXcf
 pkgname=fastpotify-plus-git
-pkgver=0.6.0.r396.ac798bf
+pkgver=0.6.0.r398.b9f43ae
 pkgrel=1
 pkgdesc="Fastpotify+ native Spotify client with direct type-ahead navigation"
 arch=('x86_64' 'aarch64')
