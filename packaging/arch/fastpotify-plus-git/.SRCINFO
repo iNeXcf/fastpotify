@@ -1,0 +1,30 @@
+pkgbase = fastpotify-plus-git
+	pkgdesc = Fastpotify+ native Spotify client with direct type-ahead navigation
+	pkgver = 0.5.0.r41.5fcf515
+	pkgrel = 1
+	url = https://github.com/iNeXcf/fastpotify
+	arch = x86_64
+	arch = aarch64
+	license = MIT
+	makedepends = git
+	makedepends = cargo
+	makedepends = cmake
+	makedepends = clang
+	depends = alsa-lib
+	depends = libpulse
+	depends = libglvnd
+	depends = libxkbcommon
+	depends = wayland
+	depends = libx11
+	optdepends = libxkbcommon-x11: keyboard handling in X11 sessions
+	optdepends = pipewire-pulse: PipeWire as the PulseAudio server
+	provides = fastpotify
+	conflicts = fastpotify
+	conflicts = fastpotify-bin
+	conflicts = fastpotify-git
+	options = !debug
+	options = !lto
+	source = fastpotify-plus::git+https://github.com/iNeXcf/fastpotify.git#branch=feature/typeahead-song-lists
+	sha256sums = SKIP
+
+pkgname = fastpotify-plus-git

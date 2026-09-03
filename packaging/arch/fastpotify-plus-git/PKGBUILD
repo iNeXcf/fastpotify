@@ -1,0 +1,57 @@
+# Maintainer: iNeXcf
+pkgname=fastpotify-plus-git
+pkgver=0.5.0.r41.5fcf515
+pkgrel=1
+pkgdesc="Fastpotify+ native Spotify client with direct type-ahead navigation"
+arch=('x86_64' 'aarch64')
+url="https://github.com/iNeXcf/fastpotify"
+license=('MIT')
+depends=('alsa-lib' 'libpulse' 'libglvnd' 'libxkbcommon' 'wayland' 'libx11')
+makedepends=('git' 'cargo' 'cmake' 'clang')
+optdepends=('libxkbcommon-x11: keyboard handling in X11 sessions'
+            'pipewire-pulse: PipeWire as the PulseAudio server')
+provides=('fastpotify')
+conflicts=('fastpotify' 'fastpotify-bin' 'fastpotify-git')
+# ring compiles its own C. Arch's LTO flags produce objects its linker cannot
+# resolve, while Cargo already applies the project's release profile.
+options=('!debug' '!lto')
+source=('fastpotify-plus::git+https://github.com/iNeXcf/fastpotify.git#branch=feature/typeahead-song-lists')
+sha256sums=('SKIP')
+
+pkgver() {
+  cd "${srcdir}/fastpotify-plus"
+  git describe --long --tags --abbrev=7 |
+    sed 's/^v//;s/-\(rc\|alpha\|beta\)\([0-9]*\)-/\1\2-/;s/-/.r/;s/-g/./'
+}
+
+prepare() {
+  cd "${srcdir}/fastpotify-plus"
+  export RUSTUP_TOOLCHAIN=stable
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
+build() {
+  cd "${srcdir}/fastpotify-plus"
+  export RUSTUP_TOOLCHAIN=stable
+  export CARGO_TARGET_DIR=target
+  export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=${srcdir}=/"
+  cargo build --frozen --release
+}
+
+check() {
+  cd "${srcdir}/fastpotify-plus"
+  export RUSTUP_TOOLCHAIN=stable
+  cargo test --frozen --features demo
+}
+
+package() {
+  cd "${srcdir}/fastpotify-plus"
+
+  install -Dm755 "target/release/fastpotify" "${pkgdir}/usr/bin/fastpotify"
+  install -Dm644 "LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  install -Dm644 "README.md" "${pkgdir}/usr/share/doc/${pkgname}/README.md"
+  install -Dm644 "packaging/applications/fastpotify.desktop" \
+    "${pkgdir}/usr/share/applications/fastpotify.desktop"
+  install -Dm644 "packaging/icons/fastpotify.svg" \
+    "${pkgdir}/usr/share/icons/hicolor/scalable/apps/fastpotify.svg"
+}
