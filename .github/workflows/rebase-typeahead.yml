@@ -1,0 +1,92 @@
+name: Keep type-ahead branch current
+
+on:
+  schedule:
+    # GitHub cannot subscribe to another repository's pushes, so poll hourly.
+    - cron: "37 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rebase-typeahead
+  cancel-in-progress: false
+
+env:
+  PATCH_BRANCH: feature/typeahead-song-lists
+  UPSTREAM_REPOSITORY: crmne/fastpotify
+  UPSTREAM_BRANCH: main
+  CARGO_TERM_COLOR: always
+
+jobs:
+  rebase:
+    name: Rebase and verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Clone the patch branch
+        run: |
+          set -euo pipefail
+          git clone --branch "$PATCH_BRANCH" --single-branch \
+            "https://github.com/${GITHUB_REPOSITORY}.git" .
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream "https://github.com/${UPSTREAM_REPOSITORY}.git"
+
+      - name: Rebase onto upstream
+        id: rebase
+        run: |
+          set -euo pipefail
+          old_head="$(git rev-parse HEAD)"
+          git fetch upstream "$UPSTREAM_BRANCH"
+          upstream_head="$(git rev-parse FETCH_HEAD)"
+
+          if git merge-base --is-ancestor "$upstream_head" HEAD; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git rebase "$upstream_head"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "old_head=$old_head" >> "$GITHUB_OUTPUT"
+
+      - name: Install Rust
+        if: steps.rebase.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          rustup toolchain install stable --profile minimal --component rustfmt
+          rustup default stable
+
+      - name: Install Linux build dependencies
+        if: steps.rebase.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev libpulse-dev libxkbcommon-dev \
+            libwayland-dev libgl1-mesa-dev
+
+      - name: Cache Rust build files
+        if: steps.rebase.outputs.changed == 'true'
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: typeahead-rebase
+
+      - name: Verify the rebased branch
+        if: steps.rebase.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          cargo fmt --all --check
+          cargo test --locked --all-targets --no-default-features
+
+      - name: Update the patch branch
+        if: steps.rebase.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OLD_HEAD: ${{ steps.rebase.outputs.old_head }}
+        run: |
+          set -euo pipefail
+          gh auth setup-git
+          git push \
+            --force-with-lease="refs/heads/${PATCH_BRANCH}:${OLD_HEAD}" \
+            origin "HEAD:refs/heads/${PATCH_BRANCH}"
