@@ -90,3 +90,44 @@ jobs:
           git push \
             --force-with-lease="refs/heads/${PATCH_BRANCH}:${OLD_HEAD}" \
             origin "HEAD:refs/heads/${PATCH_BRANCH}"
+
+      - name: Calculate the package version
+        id: package
+        run: |
+          set -euo pipefail
+          crate_version="$(sed -n 's/^version = "\(.*\)"$/\1/p' Cargo.toml)"
+          test -n "$crate_version"
+          crate_version="${crate_version/-/}"
+          package_version="${crate_version}.r$(git rev-list --count HEAD).$(git rev-parse --short=7 HEAD)"
+          echo "version=$package_version" >> "$GITHUB_OUTPUT"
+
+      - name: Publish the package version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PACKAGE_VERSION: ${{ steps.package.outputs.version }}
+        run: |
+          set -euo pipefail
+          main_dir="${RUNNER_TEMP}/fork-main"
+          package_dir="packaging/arch/fastpotify-plus-git"
+          git fetch origin main
+          git worktree add --detach "$main_dir" FETCH_HEAD
+
+          current_version="$(sed -n 's/^pkgver=//p' "$main_dir/$package_dir/PKGBUILD")"
+          if [[ "$current_version" == "$PACKAGE_VERSION" ]]; then
+            exit 0
+          fi
+
+          sed -i "s/^pkgver=.*/pkgver=${PACKAGE_VERSION}/;s/^pkgrel=.*/pkgrel=1/" \
+            "$main_dir/$package_dir/PKGBUILD"
+          sed -i \
+            "s/^[[:space:]]*pkgver = .*/\tpkgver = ${PACKAGE_VERSION}/;s/^[[:space:]]*pkgrel = .*/\tpkgrel = 1/" \
+            "$main_dir/$package_dir/.SRCINFO"
+
+          git -C "$main_dir" config user.name "github-actions[bot]"
+          git -C "$main_dir" config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C "$main_dir" add \
+            "$package_dir/PKGBUILD" "$package_dir/.SRCINFO"
+          git -C "$main_dir" commit -m "Track Fastpotify+ ${PACKAGE_VERSION}"
+          gh auth setup-git
+          git -C "$main_dir" push origin HEAD:refs/heads/main
