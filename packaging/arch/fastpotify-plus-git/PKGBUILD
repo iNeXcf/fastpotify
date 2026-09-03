@@ -1,12 +1,13 @@
 # Maintainer: iNeXcf
 pkgname=fastpotify-plus-git
 pkgver=0.5.0.r387.5fcf515
-pkgrel=1
+pkgrel=2
 pkgdesc="Fastpotify+ native Spotify client with direct type-ahead navigation"
 arch=('x86_64' 'aarch64')
 url="https://github.com/iNeXcf/fastpotify"
 license=('MIT')
-depends=('alsa-lib' 'libpulse' 'libglvnd' 'libxkbcommon' 'wayland' 'libx11')
+depends=('alsa-lib' 'libpulse' 'libglvnd' 'libxkbcommon' 'wayland' 'libx11'
+         'hicolor-icon-theme')
 makedepends=('git' 'cargo' 'cmake' 'clang')
 optdepends=('libxkbcommon-x11: keyboard handling in X11 sessions'
             'pipewire-pulse: PipeWire as the PulseAudio server')

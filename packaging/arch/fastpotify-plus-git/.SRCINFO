@@ -1,7 +1,7 @@
 pkgbase = fastpotify-plus-git
 	pkgdesc = Fastpotify+ native Spotify client with direct type-ahead navigation
 	pkgver = 0.5.0.r387.5fcf515
-	pkgrel = 1
+	pkgrel = 2
 	url = https://github.com/iNeXcf/fastpotify
 	arch = x86_64
 	arch = aarch64
@@ -16,6 +16,7 @@ pkgbase = fastpotify-plus-git
 	depends = libxkbcommon
 	depends = wayland
 	depends = libx11
+	depends = hicolor-icon-theme
 	optdepends = libxkbcommon-x11: keyboard handling in X11 sessions
 	optdepends = pipewire-pulse: PipeWire as the PulseAudio server
 	provides = fastpotify
