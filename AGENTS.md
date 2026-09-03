@@ -3,6 +3,20 @@
 Follow `CONTRIBUTING.md`; it is the canonical product and contribution policy.
 These instructions add implementation constraints for coding agents.
 
+## Fork policy
+
+- This repository is maintained as **Fastpotify+**, our own version of
+  Fastpotify.
+- Treat `crmne/fastpotify` and the local `origin` remote as read-only upstream.
+  Fetch and rebase upstream changes, but do not open or update issues, pull
+  requests, reviews, comments, branches, releases, or other contributions
+  there.
+- Code, issue tracking, automation, packages, and releases belong only in
+  `iNeXcf/fastpotify` and its `fork` remote.
+- Keep useful upstream product and quality constraints unless Fastpotify+
+  explicitly chooses a different direction. The fork policy in this section
+  overrides upstream contribution, branch, and release instructions below.
+
 ## Product boundaries
 
 - Keep Fastpotify a small native Spotify client. Do not add a browser engine,
@@ -90,10 +104,11 @@ picture. Zero volume still dances.
 
 ## Branches
 
-Work on `main`. Commit there directly, one topic per commit, each
-compiling and passing the checks on its own. Feature branches and pull
-requests are for outside contributors; the maintainer's own work, and
-work done with the maintainer, does not go through them.
+Work only in `iNeXcf/fastpotify`. The maintained Fastpotify+ application branch
+is `feature/typeahead-song-lists`; the fork's `main` branch holds fork-level
+automation. Rebase the application branch onto upstream `main`, but push only
+to the `fork` remote. Keep one topic per commit, with each commit compiling and
+passing its relevant checks.
 
 ## Definition of done
 
