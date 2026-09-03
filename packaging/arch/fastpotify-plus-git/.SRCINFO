@@ -25,7 +25,7 @@ pkgbase = fastpotify-plus-git
 	conflicts = fastpotify-git
 	options = !debug
 	options = !lto
-	source = fastpotify-plus::git+https://github.com/iNeXcf/fastpotify.git#branch=feature/typeahead-song-lists
+	source = fastpotify-plus::git+https://github.com/iNeXcf/fastpotify.git#branch=fastpotify-plus
 	sha256sums = SKIP
 
 pkgname = fastpotify-plus-git

@@ -1,4 +1,4 @@
-name: Keep type-ahead branch current
+name: Keep Fastpotify+ current
 
 on:
   schedule:
@@ -10,11 +10,11 @@ permissions:
   contents: write
 
 concurrency:
-  group: rebase-typeahead
+  group: rebase-fastpotify-plus
   cancel-in-progress: false
 
 env:
-  PATCH_BRANCH: feature/typeahead-song-lists
+  PATCH_BRANCH: fastpotify-plus
   UPSTREAM_REPOSITORY: crmne/fastpotify
   UPSTREAM_BRANCH: main
   CARGO_TERM_COLOR: always
@@ -70,7 +70,7 @@ jobs:
         if: steps.rebase.outputs.changed == 'true'
         uses: Swatinem/rust-cache@v2
         with:
-          shared-key: typeahead-rebase
+          shared-key: fastpotify-plus-rebase
 
       - name: Verify the rebased branch
         if: steps.rebase.outputs.changed == 'true'
