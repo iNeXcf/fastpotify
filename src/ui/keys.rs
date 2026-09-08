@@ -94,6 +94,10 @@ pub fn handle(app: &mut App, ctx: &egui::Context) {
             );
         }
         if !typing {
+            key(Modifiers::SHIFT, Key::ArrowLeft, Action::SeekBy(-10_000));
+            key(Modifiers::SHIFT, Key::ArrowRight, Action::SeekBy(10_000));
+        }
+        if !typing && app.settings.single_key_shortcuts {
             key(
                 Modifiers::NONE,
                 Key::Questionmark,
@@ -104,8 +108,6 @@ pub fn handle(app: &mut App, ctx: &egui::Context) {
                 Key::Questionmark,
                 Action::ShowDialog(Dialog::Shortcuts),
             );
-            key(Modifiers::SHIFT, Key::ArrowLeft, Action::SeekBy(-10_000));
-            key(Modifiers::SHIFT, Key::ArrowRight, Action::SeekBy(10_000));
             // The list handles Space too, so letters and Space are interpreted
             // in their real event order when they arrive in one frame.
             if !typeahead_jumps {
@@ -122,6 +124,7 @@ pub fn handle(app: &mut App, ctx: &egui::Context) {
         }
     });
     if !typing
+        && app.settings.single_key_shortcuts
         && !typeahead_jumps
         && ctx.input_mut(|input| input.consume_key(Modifiers::NONE, Key::B))
         && let Some(now) = app.now_playing().filter(|now| !now.is_episode)
@@ -227,6 +230,27 @@ mod tests {
     use crate::paths::AppDirs;
     use crate::settings::Settings;
 
+    fn shortcut_app(name: &str, settings: Settings) -> (App, std::path::PathBuf) {
+        let root = std::env::temp_dir().join(format!("fastpotify-{name}-{}", std::process::id()));
+        let dirs = AppDirs {
+            config: root.join("config"),
+            state: root.join("state"),
+            cache: root.join("cache"),
+        };
+        let mut app = App::new(
+            &crate::backend::Waker::default(),
+            dirs,
+            settings,
+            AppOptions {
+                restore_sign_in: false,
+                media_controls: false,
+                tray: false,
+            },
+        );
+        crate::demo::populate(&mut app);
+        (app, root)
+    }
+
     #[test]
     fn shortcut_constants_name_the_platform_modifier() {
         let expected = if cfg!(target_os = "macos") {
@@ -277,26 +301,7 @@ mod tests {
 
     #[test]
     fn b_toggles_the_playing_song_in_liked_songs() {
-        let root = std::env::temp_dir().join(format!(
-            "fastpotify-like-shortcut-test-{}",
-            std::process::id()
-        ));
-        let dirs = AppDirs {
-            config: root.join("config"),
-            state: root.join("state"),
-            cache: root.join("cache"),
-        };
-        let mut app = App::new(
-            &crate::backend::Waker::default(),
-            dirs,
-            Settings::default(),
-            AppOptions {
-                media_controls: false,
-                restore_sign_in: false,
-                tray: false,
-            },
-        );
-        crate::demo::populate(&mut app);
+        let (mut app, root) = shortcut_app("like-shortcut-test", Settings::default());
 
         let ctx = egui::Context::default();
         let input = egui::RawInput {
@@ -322,28 +327,13 @@ mod tests {
 
     #[test]
     fn typeahead_owns_every_letter_shortcut() {
-        let root = std::env::temp_dir().join(format!(
-            "fastpotify-typeahead-shortcuts-test-{}",
-            std::process::id()
-        ));
-        let dirs = AppDirs {
-            config: root.join("config"),
-            state: root.join("state"),
-            cache: root.join("cache"),
-        };
-        let mut app = App::new(
-            &crate::backend::Waker::default(),
-            dirs,
+        let (mut app, root) = shortcut_app(
+            "typeahead-shortcuts-test",
             Settings {
                 typeahead_jump: true,
                 ..Settings::default()
             },
-            AppOptions {
-                media_controls: false,
-                tray: false,
-            },
         );
-        crate::demo::populate(&mut app);
 
         for page in [
             Page::Playlist("pl1".into()),
@@ -393,6 +383,92 @@ mod tests {
                 }
             }
         }
+        app.backend.shutdown();
+        let _ = std::fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn disabling_single_key_shortcuts_keeps_modified_shortcuts_and_escape() {
+        let (mut app, root) = shortcut_app(
+            "disabled-shortcuts-test",
+            Settings {
+                single_key_shortcuts: false,
+                ..Settings::default()
+            },
+        );
+        let mut press = |key, modifiers| {
+            let ctx = egui::Context::default();
+            let events = vec![egui::Event::Key {
+                key,
+                physical_key: None,
+                pressed: true,
+                repeat: false,
+                modifiers,
+            }];
+            let mut output = ctx.run_ui(
+                egui::RawInput {
+                    events: events.clone(),
+                    ..Default::default()
+                },
+                |_ui| {
+                    handle(&mut app, &ctx);
+                    if app.actions.is_empty() {
+                        assert_eq!(ctx.input(|input| input.events.clone()), events);
+                    }
+                },
+            );
+            output.textures_delta.clear();
+            std::mem::take(&mut app.actions)
+        };
+
+        for &key in Key::ALL {
+            assert!(press(key, Modifiers::NONE).is_empty(), "{key:?}");
+            if !matches!(key, Key::ArrowLeft | Key::ArrowRight) {
+                assert!(press(key, Modifiers::SHIFT).is_empty(), "Shift+{key:?}");
+            }
+        }
+        assert!(matches!(
+            press(Key::F, Modifiers::COMMAND).as_slice(),
+            [Action::FocusSearch]
+        ));
+        assert!(matches!(
+            press(Key::B, Modifiers::COMMAND).as_slice(),
+            [Action::ToggleSidebar]
+        ));
+        assert!(matches!(
+            press(Key::ArrowRight, Modifiers::COMMAND).as_slice(),
+            [Action::Next]
+        ));
+        assert!(matches!(
+            press(Key::ArrowLeft, Modifiers::ALT).as_slice(),
+            [Action::Back]
+        ));
+        assert!(matches!(
+            press(Key::ArrowRight, Modifiers::SHIFT).as_slice(),
+            [Action::SeekBy(10_000)]
+        ));
+        assert!(matches!(
+            press(Key::Slash, Modifiers::COMMAND).as_slice(),
+            [Action::ShowDialog(Dialog::Shortcuts)]
+        ));
+
+        app.dialog = Some(Dialog::Shortcuts);
+        let ctx = egui::Context::default();
+        let mut output = ctx.run_ui(
+            egui::RawInput {
+                events: vec![egui::Event::Key {
+                    key: Key::Escape,
+                    physical_key: None,
+                    pressed: true,
+                    repeat: false,
+                    modifiers: Modifiers::NONE,
+                }],
+                ..Default::default()
+            },
+            |_ui| handle(&mut app, &ctx),
+        );
+        output.textures_delta.clear();
+        assert!(matches!(app.actions.as_slice(), [Action::CloseDialog]));
         app.backend.shutdown();
         let _ = std::fs::remove_dir_all(root);
     }

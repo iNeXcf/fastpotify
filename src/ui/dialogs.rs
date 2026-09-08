@@ -162,6 +162,15 @@ pub fn show(app: &mut App, ctx: &egui::Context) {
                         .max_height(room.max(120.0))
                         .auto_shrink([false, true])
                         .show(ui, |ui| {
+                            if !app.settings.single_key_shortcuts {
+                                ui.add(
+                                    egui::Label::new(
+                                        "Single-key shortcuts are disabled in Settings. Modified shortcuts and type-ahead still work.",
+                                    )
+                                    .wrap(),
+                                );
+                                ui.add_space(12.0);
+                            }
                             egui::Grid::new("shortcuts")
                                 .num_columns(2)
                                 .spacing([24.0, 8.0])

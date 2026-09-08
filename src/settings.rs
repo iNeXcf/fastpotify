@@ -116,6 +116,9 @@ pub struct Settings {
     pub queue_width: f32,
     /// Use compact single-line rows without cover art in track lists.
     pub tracklist_compact: bool,
+    /// Allow single-key shortcut actions in every window, without affecting
+    /// text entry, type-ahead, or focused controls.
+    pub single_key_shortcuts: bool,
     /// Plain letters jump to the matching song in the track lists, the
     /// way file explorers jump to files.
     pub typeahead_jump: bool,
@@ -225,6 +228,7 @@ impl Default for Settings {
             lyrics_width: 360.0,
             queue_width: 360.0,
             tracklist_compact: false,
+            single_key_shortcuts: true,
             typeahead_jump: false,
             typeahead_loose: true,
             search_history: Vec::new(),
@@ -477,6 +481,21 @@ mod tests {
         let restored: Settings = serde_json::from_str(&json).unwrap();
         assert!(restored.typeahead_jump);
         assert!(!restored.typeahead_loose);
+    }
+
+    #[test]
+    fn single_key_shortcuts_default_on_and_round_trip() {
+        let older: Settings = serde_json::from_str("{}").unwrap();
+        assert!(older.single_key_shortcuts);
+        for enabled in [false, true] {
+            let settings = Settings {
+                single_key_shortcuts: enabled,
+                ..Settings::default()
+            };
+            let json = serde_json::to_string(&settings).unwrap();
+            let restored: Settings = serde_json::from_str(&json).unwrap();
+            assert_eq!(restored.single_key_shortcuts, enabled);
+        }
     }
 }
 

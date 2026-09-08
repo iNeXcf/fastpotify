@@ -54,6 +54,12 @@ also read and set these sliders' values. `Ctrl+F` (`Cmd+F` on macOS) focuses
 search. The playback shortcuts remain available; unmodified letter and
 Space shortcuts yield to the focused control.
 
+To turn off standalone shortcut actions everywhere, disable **Single-key
+shortcuts** in Settings. This includes letters, Space, `/`, and `?` in the
+main window and Winamp, plus MilkDrop's single-key controls. The option is on
+by default and applies immediately. Modified shortcuts, text editing,
+type-ahead, focused-control activation, and Escape are unaffected.
+
 This is the first part of screen-reader support. Windows testing with NVDA
 remains tracked in [#262](https://github.com/crmne/fastpotify/issues/262).
 Winamp skins do not yet have equivalent accessibility coverage.
@@ -159,3 +165,5 @@ The matched row is highlighted. Enter plays it, Backspace edits the query,
 and Escape or two seconds without typing clears it. Because a letter cannot
 be both search text and a shortcut, all plain-letter shortcuts (including `B`
 to like or unlike the playing song) yield to type-ahead on those pages.
+Space joins an active query. With an empty query it only plays or pauses when
+**Single-key shortcuts** is enabled.

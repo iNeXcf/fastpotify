@@ -277,6 +277,12 @@ still in progress.
 
 On macOS, `Cmd` replaces `Ctrl`.
 
+Turn off **Single-key shortcuts** in Settings to disable standalone shortcut
+actions in the main window, Winamp, and MilkDrop, including letters, Space,
+`/`, and `?`. This applies immediately and is saved between launches; it is
+on by default. Modified shortcuts, typing and type-ahead, focused controls,
+and Escape still work.
+
 With Type-ahead in song lists enabled, typing letters on a playlist, album,
 or Liked Songs page jumps to the first song whose title starts with what you
 typed, the way file explorers jump to files: more letters narrow the search,
@@ -285,13 +291,14 @@ match. Enter starts playing; Esc or two seconds without typing clears it.
 Matching forgives case,
 accents, punctuation, spaces, and a leading The (`dont` finds "Don't Stop",
 `letit` finds "Let It Be"); Space
-plays or pauses until a search is active, then it types a space; and a Loose
+plays or pauses (if single-key shortcuts are enabled) until a search is active,
+then it types a space; and a Loose
 type-ahead setting also matches letters anywhere in a title — as an unbroken
 run first, then scattered in order. A letter cannot be both a search and a
 shortcut, so while such a list is open, plain-letter shortcuts type into the
 search instead, including `B` for liking or unliking the playing song.
-Those shortcuts keep working everywhere else. Type-ahead is off by default
-and can be enabled in Settings.
+Those shortcuts keep working everywhere else unless Single-key shortcuts is
+off. Type-ahead is off by default and can be enabled in Settings.
 
 ## Controlling it from outside
 

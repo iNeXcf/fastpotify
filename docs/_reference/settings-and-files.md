@@ -153,6 +153,7 @@ main fields are:
 | `liked_songs_pinned` | `true` | Keep Liked Songs in the pin block; older settings place it first until moved |
 | `sidebar_compact` | `false` | Names only in the library sidebar, no covers |
 | `tracklist_compact` | `false` | One-line track rows without covers |
+| `single_key_shortcuts` | `true` | Allow standalone shortcut actions in all windows; typing, type-ahead, focused controls and modified shortcuts work either way |
 | `typeahead_jump` | `false` | Plain typing jumps to matching songs in track lists |
 | `typeahead_loose` | `true` | Also match typed letters elsewhere in a title, in order |
 | `winamp_window` | `false` | The window is the Winamp mini player |
