@@ -288,8 +288,8 @@ accents, punctuation, spaces, and a leading The (`dont` finds "Don't Stop",
 plays or pauses until a search is active, then it types a space; and a Loose
 type-ahead setting also matches letters anywhere in a title — as an unbroken
 run first, then scattered in order. A letter cannot be both a search and a
-shortcut, so while such a list is open, `M`, `S`, `R`, `Q`, and `L` type into
-the search instead of controlling mute, shuffle, repeat, queue, and lyrics.
+shortcut, so while such a list is open, plain-letter shortcuts type into the
+search instead, including `B` for liking or unliking the playing song.
 Those shortcuts keep working everywhere else. Type-ahead is off by default
 and can be enabled in Settings.
 
