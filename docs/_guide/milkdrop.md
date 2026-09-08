@@ -18,9 +18,9 @@ Windows on ARM build leaves it out.
 
 ## The window
 
-Drag the image to move the window. Double-click or press **F** for fullscreen.
-Press **Esc** to leave fullscreen or close the window. Drag the lower-right
-corner to resize it.
+Drag the image to move the window. Double-click, **Alt+Enter**, or **F** enters
+fullscreen. Press **Esc** to leave fullscreen or close the window. Drag the
+lower-right corner to resize it.
 
 MilkDrop uses the same post-equalizer, pre-volume audio as the other
 visualisers. It keeps moving at zero volume and stays flat when another device
@@ -49,3 +49,13 @@ its idle preset.
 - **?** or **F1**: show all shortcuts.
 
 The normal playback shortcuts also work.
+
+**Single-key shortcuts** in Settings is on by default. Turning it off disables
+all the single-key controls above, including **?** and **F1**, plus **F** and
+the player keys **Space**, **M**, **B**, and **S**. Shift and capital letters
+do not bypass the setting. It applies to open and newly opened MilkDrop windows.
+
+**Ctrl/Command+Left/Right** still changes songs, **Ctrl/Command+Up/Down** still
+adjusts volume, **Alt+Enter** still toggles fullscreen, and **Esc** still leaves
+fullscreen or closes the window. Mouse controls are unchanged, including
+right-click for the next preset and double-click for fullscreen.
