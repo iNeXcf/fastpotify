@@ -78,7 +78,10 @@ jobs:
           tar -xzf "$tarball" -C "$RUNNER_TEMP"
           install -m 0755 "${RUNNER_TEMP}/mergiraf" /usr/local/bin/mergiraf
           git config merge.mergiraf.name mergiraf
-          git config merge.mergiraf.driver 'mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L'
+          # -t 0 disables mergiraf's wall-clock fallback so a merge is a
+          # pure function of its inputs: conflict text is then identical
+          # locally and here, which is what rerere matching relies on.
+          git config merge.mergiraf.driver 'mergiraf merge --git -t 0 %O %A %B -s %S -x %X -y %Y -p %P -l %L'
           # Repository-local attributes only: the patch branch carries no
           # trace of this, so the fork diff stays free of automation setup.
           cat > .git/info/attributes <<'EOF'
@@ -197,7 +200,7 @@ jobs:
             --json number --jq '.[0].number // empty')" || true
           if [ -n "${issue_number:-}" ]; then
             gh issue close "$issue_number" \
-              --comment "Closed automatically: the rebase in ${GITHUB_RUN_URL} succeeded."
+              --comment "Closed automatically: the rebase in ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} succeeded."
           fi
 
       - name: Calculate the package version
@@ -251,18 +254,24 @@ jobs:
           {
             echo "The hourly rebase of \`${PATCH_BRANCH}\` onto \`${UPSTREAM_REPOSITORY}@${UPSTREAM_BRANCH}\` stopped on a conflict that mergiraf and the recorded rerere resolutions could not settle."
             echo
-            echo "- Failing run: ${GITHUB_RUN_URL}"
+            echo "- Failing run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
             echo "- Stuck patch commit: $(git log -1 --oneline REBASE_HEAD 2>/dev/null || echo unknown)"
             echo "- Conflicted files:"
             git diff --name-only --diff-filter=U | sed 's/^/  - /'
             echo
             cat <<'EOF'
-          Resolve it locally and record the resolution so future runs replay it:
+          Resolve it locally and record the resolution so future runs replay it. Use the same mergiraf setup as the pipeline so the conflict text matches byte for byte:
 
           ```
+          tarball=$(mktemp)
+          curl -fsSL -o "$tarball" \
+            https://codeberg.org/mergiraf/mergiraf/releases/download/v0.19.1/mergiraf_x86_64-unknown-linux-musl.tar.gz
+          tar -xzf "$tarball" -C /usr/local/bin mergiraf
           git config rerere.enabled true
           git config rerere.autoUpdate true
           git config merge.conflictStyle diff3
+          git config merge.mergiraf.name mergiraf
+          git config merge.mergiraf.driver 'mergiraf merge --git -t 0 %O %A %B -s %S -x %X -y %Y -p %P -l %L'
           git rebase origin/main
           # resolve the conflicts, then:
           GIT_EDITOR=true git rebase --continue
