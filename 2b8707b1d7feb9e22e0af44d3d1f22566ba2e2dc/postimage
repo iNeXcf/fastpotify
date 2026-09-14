@@ -1641,12 +1641,9 @@ impl App {
     }
 
     fn reset_data(&mut self) {
-<<<<<<<
         self.cover_uploads.clear();
         self.uploaded_covers.clear();
-=======
         self.data_revision = self.data_revision.wrapping_add(1);
->>>>>>>
         self.library = Library::default();
         self.liked_songs = crate::liked::LikedSongs::default();
         self.liked_recheck_at = None;
@@ -5096,7 +5093,6 @@ impl App {
                 generation,
                 result,
             } => {
-<<<<<<<
                 if self
                     .album_pages
                     .get(&id)
@@ -5104,9 +5100,7 @@ impl App {
                 {
                     return;
                 }
-=======
                 let succeeded = result.is_ok();
->>>>>>>
                 let mut uris = Vec::new();
                 if let Some(page) = self.album_pages.get_mut(&id) {
                     match result {
