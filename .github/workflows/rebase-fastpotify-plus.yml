@@ -2,8 +2,9 @@ name: Keep Fastpotify+ current
 
 on:
   schedule:
-    # GitHub cannot subscribe to another repository's pushes, so poll hourly.
-    - cron: "37 * * * *"
+    # One automatic rebase attempt per week, Monday morning UTC. Trigger
+    # a manual run between attempts after resolving conflicts.
+    - cron: "37 6 * * 1"
   workflow_dispatch:
 
 permissions:
@@ -195,12 +196,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          issue_number="$(gh issue list --state open \
-            --search "in:title \"${STALLED_ISSUE_TITLE}\"" \
-            --json number --jq '.[0].number // empty')" || true
+          repo="repos/${GITHUB_REPOSITORY}"
+          issue_number="$(gh api "$repo/issues?state=open" \
+            --jq '.[] | select(.title == env.STALLED_ISSUE_TITLE) | .number' \
+            | head -n 1)" || true
           if [ -n "${issue_number:-}" ]; then
-            gh issue close "$issue_number" \
-              --comment "Closed automatically: the rebase in ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} succeeded."
+            gh api -X POST "$repo/issues/${issue_number}/comments" \
+              -f body="Closed automatically: the rebase in ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} succeeded."
+            gh api -X PATCH "$repo/issues/${issue_number}" -F state=closed
           fi
 
       - name: Calculate the package version
@@ -294,11 +297,14 @@ jobs:
           This issue closes automatically once a rebase succeeds again.
           EOF
           } > "$body_file"
-          issue_number="$(gh issue list --state open \
-            --search "in:title \"${STALLED_ISSUE_TITLE}\"" \
-            --json number --jq '.[0].number // empty')" || true
+          issue_number="$(gh api "repos/${GITHUB_REPOSITORY}/issues?state=open" \
+            --jq '.[] | select(.title == env.STALLED_ISSUE_TITLE) | .number' \
+            | head -n 1)" || true
           if [ -n "${issue_number:-}" ]; then
-            gh issue edit "$issue_number" --body-file "$body_file"
+            gh api -X PATCH "repos/${GITHUB_REPOSITORY}/issues/${issue_number}" \
+              -F body="$(cat "$body_file")"
           else
-            gh issue create --title "$STALLED_ISSUE_TITLE" --body-file "$body_file"
+            gh api -X POST "repos/${GITHUB_REPOSITORY}/issues" \
+              -f title="$STALLED_ISSUE_TITLE" \
+              -F body="$(cat "$body_file")"
           fi
