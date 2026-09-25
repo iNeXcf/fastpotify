@@ -191,7 +191,7 @@ jobs:
             origin "HEAD:refs/heads/${PATCH_BRANCH}"
 
       - name: Close the tracking issue after a successful rebase
-        if: steps.rebase.outputs.changed == 'true'
+        if: success()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -255,7 +255,7 @@ jobs:
           set -euo pipefail
           body_file="${RUNNER_TEMP}/stalled-issue.md"
           {
-            echo "The hourly rebase of \`${PATCH_BRANCH}\` onto \`${UPSTREAM_REPOSITORY}@${UPSTREAM_BRANCH}\` stopped on a conflict that mergiraf and the recorded rerere resolutions could not settle."
+            echo "The scheduled rebase of \`${PATCH_BRANCH}\` onto \`${UPSTREAM_REPOSITORY}@${UPSTREAM_BRANCH}\` stopped on a conflict that mergiraf and the recorded rerere resolutions could not settle."
             echo
             echo "- Failing run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
             echo "- Stuck patch commit: $(git log -1 --oneline REBASE_HEAD 2>/dev/null || echo unknown)"
