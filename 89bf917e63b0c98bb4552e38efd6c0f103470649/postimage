@@ -1,11 +1,7 @@
 ---
 redirect_from: /using-fastpotify/
 title: Everyday Use
-<<<<<<<
-description: Library ordering, local play history, and type-ahead navigation.
-=======
-description: Play music, arrange playlists, find lyrics, and make Spotifast your own.
->>>>>>>
+description: Play music, arrange playlists, find lyrics, jump to songs by typing, and make Spotifast your own.
 nav_order: 3
 ---
 
