@@ -6,13 +6,14 @@ pkgdesc="Fastpotify+ native Spotify client with direct type-ahead navigation"
 arch=('x86_64' 'aarch64')
 url="https://github.com/iNeXcf/fastpotify"
 license=('MIT')
-depends=('alsa-lib' 'libpulse' 'libglvnd' 'libxkbcommon' 'wayland' 'libx11'
+depends=('dbus' 'alsa-lib' 'libpulse' 'libglvnd' 'libxkbcommon' 'wayland' 'libx11'
          'hicolor-icon-theme')
 makedepends=('git' 'cargo' 'cmake' 'clang')
 optdepends=('libxkbcommon-x11: keyboard handling in X11 sessions'
             'pipewire-pulse: PipeWire as the PulseAudio server')
-provides=('fastpotify')
-conflicts=('fastpotify' 'fastpotify-bin' 'fastpotify-git')
+provides=('spotifast')
+conflicts=('spotifast' 'spotifast-bin' 'spotifast-git'
+           'fastpotify' 'fastpotify-bin' 'fastpotify-git')
 # ring compiles its own C. Arch's LTO flags produce objects its linker cannot
 # resolve, while Cargo already applies the project's release profile.
 options=('!debug' '!lto')
@@ -50,11 +51,11 @@ check() {
 package() {
   cd "${srcdir}/fastpotify-plus"
 
-  install -Dm755 "target/release/fastpotify" "${pkgdir}/usr/bin/fastpotify"
+  install -Dm755 "target/release/spotifast" "${pkgdir}/usr/bin/spotifast"
   install -Dm644 "LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
   install -Dm644 "README.md" "${pkgdir}/usr/share/doc/${pkgname}/README.md"
-  install -Dm644 "packaging/applications/fastpotify.desktop" \
-    "${pkgdir}/usr/share/applications/fastpotify.desktop"
-  install -Dm644 "packaging/icons/fastpotify.svg" \
-    "${pkgdir}/usr/share/icons/hicolor/scalable/apps/fastpotify.svg"
+  install -Dm644 "packaging/applications/spotifast.desktop" \
+    "${pkgdir}/usr/share/applications/spotifast.desktop"
+  install -Dm644 "packaging/icons/spotifast.svg" \
+    "${pkgdir}/usr/share/icons/hicolor/scalable/apps/spotifast.svg"
 }

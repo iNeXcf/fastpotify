@@ -82,6 +82,21 @@ everyday use, and connection details.
 
 ## Install
 
+### Fastpotify+ package
+
+This fork's maintained application is on the
+[`fastpotify-plus` branch](https://github.com/iNeXcf/fastpotify/tree/fastpotify-plus).
+Its Arch recipe is in
+[`packaging/arch/fastpotify-plus-git`](packaging/arch/fastpotify-plus-git).
+The package keeps the name `fastpotify-plus-git`, but follows upstream's rename:
+launch it with `spotifast`, and use `spotifast.desktop` for desktop integration.
+
+The **Keep Fastpotify+ current** workflow refreshes the recipe's version after
+scheduled or manual runs, including when the application branch is already
+up to date with upstream.
+
+### Upstream packages
+
 On Arch Linux, Fastpotify is in the AUR:
 
 ```bash
