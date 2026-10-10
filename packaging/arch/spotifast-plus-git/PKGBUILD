@@ -1,10 +1,10 @@
 # Maintainer: iNeXcf
-pkgname=fastpotify-plus-git
+pkgname=spotifast-plus-git
 pkgver=0.12.0.r801.268de01
 pkgrel=1
-pkgdesc="Fastpotify+ native Spotify client with direct type-ahead navigation"
+pkgdesc="Spotifast+ native Spotify client with direct type-ahead navigation"
 arch=('x86_64' 'aarch64')
-url="https://github.com/iNeXcf/fastpotify"
+url="https://github.com/iNeXcf/spotifast"
 license=('MIT')
 depends=('dbus' 'alsa-lib' 'libpulse' 'libglvnd' 'libxkbcommon' 'wayland' 'libx11'
          'hicolor-icon-theme')
@@ -17,11 +17,11 @@ conflicts=('spotifast' 'spotifast-bin' 'spotifast-git'
 # ring compiles its own C. Arch's LTO flags produce objects its linker cannot
 # resolve, while Cargo already applies the project's release profile.
 options=('!debug' '!lto')
-source=('fastpotify-plus::git+https://github.com/iNeXcf/fastpotify.git#branch=fastpotify-plus')
+source=('spotifast-plus::git+https://github.com/iNeXcf/spotifast.git#branch=spotifast-plus')
 sha256sums=('SKIP')
 
 pkgver() {
-  cd "${srcdir}/fastpotify-plus"
+  cd "${srcdir}/spotifast-plus"
   version=$(sed -n 's/^version = "\(.*\)"$/\1/p' Cargo.toml)
   version=${version/-/}
   printf '%s.r%s.%s' "$version" "$(git rev-list --count HEAD)" \
@@ -29,13 +29,13 @@ pkgver() {
 }
 
 prepare() {
-  cd "${srcdir}/fastpotify-plus"
+  cd "${srcdir}/spotifast-plus"
   export RUSTUP_TOOLCHAIN=stable
   cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
 }
 
 build() {
-  cd "${srcdir}/fastpotify-plus"
+  cd "${srcdir}/spotifast-plus"
   export RUSTUP_TOOLCHAIN=stable
   export CARGO_TARGET_DIR=target
   export RUSTFLAGS="${RUSTFLAGS:-} --remap-path-prefix=${srcdir}=/"
@@ -43,13 +43,13 @@ build() {
 }
 
 check() {
-  cd "${srcdir}/fastpotify-plus"
+  cd "${srcdir}/spotifast-plus"
   export RUSTUP_TOOLCHAIN=stable
   cargo test --frozen --features demo
 }
 
 package() {
-  cd "${srcdir}/fastpotify-plus"
+  cd "${srcdir}/spotifast-plus"
 
   install -Dm755 "target/release/spotifast" "${pkgdir}/usr/bin/spotifast"
   install -Dm644 "LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"

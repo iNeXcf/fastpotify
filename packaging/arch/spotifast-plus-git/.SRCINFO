@@ -1,8 +1,8 @@
-pkgbase = fastpotify-plus-git
-	pkgdesc = Fastpotify+ native Spotify client with direct type-ahead navigation
+pkgbase = spotifast-plus-git
+	pkgdesc = Spotifast+ native Spotify client with direct type-ahead navigation
 	pkgver = 0.12.0.r801.268de01
 	pkgrel = 1
-	url = https://github.com/iNeXcf/fastpotify
+	url = https://github.com/iNeXcf/spotifast
 	arch = x86_64
 	arch = aarch64
 	license = MIT
@@ -29,7 +29,7 @@ pkgbase = fastpotify-plus-git
 	conflicts = fastpotify-git
 	options = !debug
 	options = !lto
-	source = fastpotify-plus::git+https://github.com/iNeXcf/fastpotify.git#branch=fastpotify-plus
+	source = spotifast-plus::git+https://github.com/iNeXcf/spotifast.git#branch=spotifast-plus
 	sha256sums = SKIP
 
-pkgname = fastpotify-plus-git
+pkgname = spotifast-plus-git

@@ -1,4 +1,4 @@
-name: Keep Fastpotify+ current
+name: Keep Spotifast+ current
 
 on:
   schedule:
@@ -12,17 +12,17 @@ permissions:
   issues: write
 
 concurrency:
-  group: rebase-fastpotify-plus
+  group: rebase-spotifast-plus
   cancel-in-progress: false
 
 env:
-  PATCH_BRANCH: fastpotify-plus
-  UPSTREAM_REPOSITORY: crmne/fastpotify
+  PATCH_BRANCH: spotifast-plus
+  UPSTREAM_REPOSITORY: crmne/spotifast
   UPSTREAM_BRANCH: main
   CARGO_TERM_COLOR: always
   MERGIRAF_VERSION: "0.19.1"
   MERGIRAF_SHA256: 632ad77f90bf4874e8b89cfe7073bfbd6ad55c7565d2fa9530062b8df683cc30
-  STALLED_ISSUE_TITLE: "Rebase of fastpotify-plus onto upstream stalled"
+  STALLED_ISSUE_TITLE: "Rebase of spotifast-plus onto upstream stalled"
 
 jobs:
   rebase:
@@ -132,7 +132,7 @@ jobs:
           if git fetch origin refs/heads/rerere-cache; then
             git worktree add --detach "$wt" FETCH_HEAD
           else
-            seed="$(echo "Fastpotify+ rerere cache, seeded by run ${GITHUB_RUN_ID}" \
+            seed="$(echo "Spotifast+ rerere cache, seeded by run ${GITHUB_RUN_ID}" \
               | git commit-tree "$(git mktree </dev/null)")"
             git worktree add --detach "$wt" "$seed"
           fi
@@ -166,7 +166,7 @@ jobs:
         if: steps.rebase.outputs.changed == 'true'
         uses: Swatinem/rust-cache@v2
         with:
-          shared-key: fastpotify-plus-rebase
+          shared-key: spotifast-plus-rebase
 
       - name: Verify the rebased branch
         if: steps.rebase.outputs.changed == 'true'
@@ -223,7 +223,7 @@ jobs:
         run: |
           set -euo pipefail
           main_dir="${RUNNER_TEMP}/fork-main"
-          package_dir="packaging/arch/fastpotify-plus-git"
+          package_dir="packaging/arch/spotifast-plus-git"
           git fetch origin main
           git worktree add --detach "$main_dir" FETCH_HEAD
 
@@ -243,7 +243,7 @@ jobs:
             "41898282+github-actions[bot]@users.noreply.github.com"
           git -C "$main_dir" add \
             "$package_dir/PKGBUILD" "$package_dir/.SRCINFO"
-          git -C "$main_dir" commit -m "Track Fastpotify+ ${PACKAGE_VERSION}"
+          git -C "$main_dir" commit -m "Track Spotifast+ ${PACKAGE_VERSION}"
           gh auth setup-git
           git -C "$main_dir" push origin HEAD:refs/heads/main
 
@@ -278,7 +278,7 @@ jobs:
           git rebase origin/main
           # resolve the conflicts, then:
           GIT_EDITOR=true git rebase --continue
-          git push fork fastpotify-plus --force-with-lease
+          git push fork spotifast-plus --force-with-lease
           ```
 
           Then publish the recorded resolutions to the cache branch:
