@@ -1,0 +1,556 @@
+<p align="center">
+  <img src="docs/assets/images/logo.svg" alt="Spotifast logo" width="88" height="88">
+</p>
+
+<h1 align="center">Spotifast</h1>
+
+<p align="center"><strong>Spotify, native and fast.</strong><br>A lightweight music app for Linux, macOS, and Windows.</p>
+
+<p align="center">
+  <a href="https://spotifast.rocks/download/"><strong>Download</strong></a> ·
+  <a href="https://spotifast.rocks/getting-started/">Getting started</a> ·
+  <a href="https://spotifast.rocks/using-spotifast/">User guide</a> ·
+  <a href="CONTRIBUTING.md">Contribute</a>
+</p>
+
+<p align="center">
+  <a href="Cargo.toml"><img src="https://img.shields.io/badge/Built_with-Rust-1ed760" alt="Built with Rust"></a>
+  <a href="https://spotifast.rocks/download/"><img src="https://img.shields.io/badge/Linux_%C2%B7_macOS_%C2%B7_Windows-24292f" alt="Linux, macOS, and Windows"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-1ed760" alt="MIT license"></a>
+</p>
+
+Spotifast is a Spotify client written in Rust with
+[egui](https://github.com/emilk/egui). It plays music through
+[librespot](https://github.com/librespot-org/librespot), typically uses
+100–250 MB of RAM, starts in well under a second, and has no browser engine.
+
+The interface includes complete Spanish, Turkish, and Ukrainian translations.
+
+**Playback needs Spotify Premium.** Free accounts can browse and search, but
+cannot play music through Spotifast.
+
+![Spotifast Home with the playlist library, recommendations, queue, and player visible](docs/screenshot.png)
+
+<details>
+<summary><strong>Watch Spotifast in action</strong></summary>
+
+https://github.com/user-attachments/assets/a5f669ce-b3b7-4f8e-9933-976a78876c7e
+
+</details>
+
+[Features](#your-music-on-your-desktop) · [Install](#install) · [First playback](#start-listening) · [Mini player](#the-winamp-mini-player) · [MilkDrop](#music-in-motion) · [Help](#guides-and-help)
+
+## Your music, on your desktop
+
+| Feature | What you can do |
+|---|---|
+| **Library and search** | Browse playlists, Liked Songs, albums, artists, and podcasts. Search the catalogue and edit playlists you own. |
+| **Spotify Connect** | Play on this computer or control playback on your other devices. |
+| **Themes** | Choose light, dark, system appearance, or custom colours. On Omarchy, follow your desktop theme. |
+| **Desktop controls** | Use keyboard shortcuts and media keys. Keep music playing from the tray when supported by your desktop and settings. |
+| **Winamp mini player** | Use classic skins with an equalizer, playlist, and animated sound displays. |
+| **MilkDrop** | Watch music-reactive visuals in a separate window or full screen. See platform availability below. |
+
+## Install
+
+<<<<<<<
+On Arch Linux, Spotifast is in the AUR:
+
+```bash
+yay -S spotifast-bin      # the released build, ready made
+yay -S spotifast          # the release, built from source
+yay -S spotifast-git      # built from the latest commit
+```
+
+On macOS, with [Homebrew](https://brew.sh):
+
+```sh
+brew install --cask crmne/tap/spotifast
+```
+
+Or [download the Mac app](https://spotifast.rocks/download/#macos), open the
+downloaded file, and drag **Spotifast** to **Applications**. Starting with 0.8.0,
+the Mac download passes Apple's security checks. Open it from Applications
+and confirm the normal downloaded-app prompt. No Terminal commands or changes
+to security settings are needed.
+
+Elsewhere, build the single binary with Rust 1.98 or newer:
+
+```bash
+cargo install --path . --locked
+```
+
+MilkDrop uses libprojectM, which is built from source. This needs CMake, a C++
+compiler, and libclang. To build without MilkDrop or those tools, run
+`cargo install --path . --locked --no-default-features`. On Linux, you also need the
+development packages for ALSA, PulseAudio or PipeWire, and the windowing
+libraries. On Arch:
+
+```bash
+sudo pacman -S --needed alsa-lib libpulse libxkbcommon wayland cmake clang
+```
+
+and on Debian or Ubuntu:
+
+```bash
+sudo apt install libasound2-dev libpulse-dev libxkbcommon-dev libwayland-dev \
+  cmake clang libclang-dev
+```
+
+and on Fedora:
+
+```bash
+sudo dnf install alsa-lib-devel pulseaudio-libs-devel libxkbcommon-devel \
+  wayland-devel cmake clang clang-devel
+```
+
+On Windows, libprojectM is built with Visual Studio 2022, CMake, LLVM, and
+vcpkg (`vcpkg install glew:x64-windows-static`, with
+`VCPKG_INSTALLATION_ROOT` pointing at the vcpkg folder).
+
+With [Nix](https://nixos.org), `nix develop` provides all of it, along with
+the exact toolchain `rust-toolchain.toml` pins.
+
+An official public binary cache is not active yet. CI can publish its Linux
+Nix builds once a maintainer configures Cachix; see
+[Nix binary cache setup](docs/_reference/nix-cache.md).
+
+On macOS, `packages.<system>.spotifast` contains the native binary and an
+ad-hoc signed `Spotifast.app` bundle for the Dock, Launch Services, and
+`spotify:` links. With nix-darwin, add `spotifast` to
+`environment.systemPackages` and link `"/Applications"` through
+`environment.pathsToLink`; with Home Manager, `home.packages` is enough, as
+its darwin support links the bundle into `~/Applications`.
+
+Since 0.8.0, system fallback fonts align with Latin text, including
+Japanese titles drawn with Hiragino Sans on macOS. Yi characters used in
+stylized artist names also use an installed fallback font instead of empty boxes.
+
+Spotifast uses system fonts for scripts not covered by its interface font,
+including Chinese, Japanese, Korean, Arabic, Hebrew, Thai, and Indic scripts.
+On macOS it draws each of them with the face the system itself uses, in the
+language order set in System Settings, so Chinese titles follow the
+Traditional or Simplified preference set there. Windows includes common
+fonts. On Linux, install `noto-fonts` and `noto-fonts-cjk` (Arch) or
+`fonts-noto` and `fonts-noto-cjk` (Debian or Ubuntu) if titles appear as
+empty boxes. Since 0.10.0, Spotifast also looks in every font
+directory named in fontconfig's configuration, so fonts installed through
+NixOS's `fonts.packages` are found too. Since 0.10.2, Arabic drawn with
+a small system face is enlarged to read as large as the Latin text around
+it, and Javanese, styled mathematical and circled letters, and ♡ in names
+find an installed face as well.
+
+On `main`, emoji are drawn in colour everywhere the interface shows
+text (names, lyrics, menus, tooltips and text fields), in the system's own
+style: Apple Color Emoji on macOS, Segoe UI Emoji on Windows, and the
+desktop's colour emoji font on Linux (`noto-fonts-emoji` on Arch, `fonts-noto-color-emoji` on Debian or
+Ubuntu). Without one, emoji are drawn in a single colour as before. The
+Winamp mini player and MilkDrop's titles keep the single-colour emoji.
+
+Since 0.8.0, long right-to-left titles in song rows and the player
+bar end with an ellipsis inside their text area, including joined Arabic letters.
+
+Since 0.10.0, the Linux launcher is
+`packaging/applications/spotifast.desktop`. Its icon and window identity also
+use Spotifast, while existing settings and window positions are preserved.
+After installing it, `xdg-mime default spotifast.desktop x-scheme-handler/spotify`
+chooses Spotifast for `spotify:` links.
+
+Spotifast draws its window with OpenGL 2.0 or newer, which the graphics
+driver of any current PC or Mac provides. A virtual machine or remote session
+without a graphics driver, such as Windows on the Microsoft Basic Display
+Adapter, may not offer it, and Spotifast then exits at startup. There is no
+separate software-rendering mode. MilkDrop needs OpenGL 3.3.
+
+## Sign in
+
+Press **Sign in with Spotify**. Your browser opens Spotify's consent page
+(Authorization Code with PKCE), so Spotifast never sees your password. The
+app keeps its grants in the system credential store: Secret Service on Linux,
+Keychain on macOS, and Credential Manager on Windows. You usually sign in once
+per machine. If the store is unavailable or locked, a new sign-in works for
+this session and Spotifast explains that it could not save it.
+[Privacy](https://spotifast.rocks/privacy/) lists everything the app stores
+and sends.
+
+Playing music **on this computer** needs a second, one-time browser approval.
+Spotify handles streaming separately from library access. Start it from the
+device menu (**Set up playback here**) or Settings. It needs Spotify
+Premium. Its reusable credential uses the same protected storage, independently
+of the two Web API grants.
+
+Since 0.8.0, local playback tries the other available server
+addresses when one cannot connect, including a prompt IPv4/IPv6 fallback.
+Socket and proxy tunnel setup have a five-second limit. See
+[how it connects](docs/_reference/how-it-connects.md#the-engine).
+
+Since 0.10.0, the whole engine connection can take up to 75 seconds,
+including server resolution and authentication. A stalled setup may therefore
+remain **Connecting** longer than one five-second attempt; the outer deadline
+does not guarantee that every fallback will be tried.
+
+Existing token files migrate after the protected write has been read back
+successfully. A failed migration keeps the original for recovery and reports
+an error. Sign-out removes shared, personal, and playback grants, including
+legacy files and pending writes. Non-secret revocation markers prevent a
+failed keychain deletion from silently restoring a signed-out session.
+See [credential storage and file locations](docs/_reference/settings-and-files.md).
+Since 0.8.0, Flatpak also preserves its fallback state directory
+across full quits, including on older Flatpak versions.
+The Flatpak application ID is `rocks.spotifast.Spotifast`.
+
+Playback approval requests Spotify's streaming permission separately. A
+verified personal app can complete sign-in while the shared app is busy.
+
+The Web API uses a shared app by default. You can add a personal Spotify
+Development Mode app in Settings → Account for a separate quota. Spotifast
+still uses the shared app for requests that personal apps do not support.
+Since 0.8.0, Premium listeners using shared access see a one-time
+prompt explaining the personal app option, with a button that opens setup.
+Dismissal is remembered across restarts.
+Playlists the shared app would serve are read over the local playback session
+instead when it is signed in. If Spotify stays busy and no personal app is
+configured, Spotifast points you to that setting at most once a day.
+
+## Account safety
+
+We are not aware of a Spotify account being suspended for using Spotifast
+or another librespot player with Premium. Sign-in happens on Spotify's own
+pages, audio uses the quality included with Premium, DRM stays intact, and
+Spotifast does not rip tracks or block ads.
+
+Reported suspensions usually involve modded apps that remove ads from free
+accounts, track ripping, or stream manipulation. Spotifast does none of
+those things, and [CONTRIBUTING.md](CONTRIBUTING.md) prohibits them.
+
+## Keyboard shortcuts
+
+Since 0.8.0, text fields keep their usual Ctrl, Cmd and Alt arrow
+keys for moving the caret while you type.
+
+Hold `Shift` while turning the mouse wheel to scroll horizontal shelves,
+including Made for you and Recently played on Home.
+
+The main window exposes named playback controls, library and song rows,
+menus, sliders, and settings switches to screen readers. Use `Tab` and
+`Shift+Tab` to move focus, then `Enter` to activate a control or
+play a focused song. Since 0.9.0, `Space` always plays or pauses
+the current song unless a text field has focus. In a playlist, album or Liked
+Songs, up and down arrows move focus between whole song rows in the displayed order and scroll them
+into view. Tab still reaches the artist links, Like and More controls.
+Arrow navigation selects only the destination song; hold `Shift` with up or
+down to extend or shrink the selection. `Delete` removes the selected songs
+from a playlist you can edit, just like **Remove from this playlist**.
+Since 0.10.0, `Ctrl+A` selects every song the list shows,
+`Ctrl+C` copies the selected songs' links one per line, and `Ctrl+V` adds
+the song links on the clipboard to the end of a playlist you can edit.
+`Ctrl+X` in a playlist you can edit copies the selected songs' links and
+removes the songs from it. A focused text field keeps these keys for its own text.
+Left and right arrows adjust a focused volume or seek
+slider. Windows testing with NVDA and accessibility for Winamp skins are
+still in progress.
+
+| Shortcut | What it does |
+| --- | --- |
+| `Space` | Play or pause |
+| `Ctrl+←` / `Ctrl+→` | Previous or next |
+| `Shift+←` / `Shift+→` | Seek 10 seconds |
+| `Ctrl+↑` / `Ctrl+↓` | Volume |
+| `M` | Mute |
+| `B` | Like or unlike the playing song |
+| `S` / `R` | Shuffle / cycle repeat |
+| `Q` | Queue panel |
+| `A`–`Z` | Jump in the song list when enabled (Enter plays, Esc clears) |
+| `Ctrl+F` or `/` | Search |
+| `Ctrl+B` | Show or hide the sidebar |
+| `Alt+←` / `Alt+→` | Back or forward |
+| `Ctrl+H` / `Ctrl+L` | Home / Liked Songs |
+| `Ctrl+Shift+A` / `Ctrl+Shift+B` | Playing artist / album |
+| `Ctrl+A` | Select every song in a playlist, album or Liked Songs |
+| `Ctrl+C` / `Ctrl+V` | Copy the selected songs' links / add copied song links to your playlist |
+| `Ctrl+X` | Copy the selected songs' links and remove the songs from your playlist |
+| `Ctrl+M` | Winamp mini player |
+| `Ctrl+Shift+K` | MilkDrop |
+| `Ctrl+,` | Settings |
+| `Ctrl+/` or `?` | All shortcuts |
+| `Ctrl+Q` | Quit |
+
+On macOS, `Cmd` replaces `Ctrl`.
+
+With Type-ahead in song lists enabled, typing letters on a playlist, album,
+or Liked Songs page jumps to the first song whose title starts with what you
+typed, the way file explorers jump to files: more letters narrow the search,
+and with Loose type-ahead off, the same first letter again moves to the next
+match. Enter starts playing; Esc or two seconds without typing clears it.
+Matching forgives case,
+accents, punctuation, spaces, and a leading The (`dont` finds "Don't Stop",
+`letit` finds "Let It Be"); Space
+plays or pauses until a search is active, then it types a space; and a Loose
+type-ahead setting also matches letters anywhere in a title — as an unbroken
+run first, then scattered in order. A letter cannot be both a search and a
+shortcut, so while such a list is open, plain-letter shortcuts type into the
+search instead, including `B` for liking or unliking the playing song.
+Those shortcuts keep working everywhere else. Type-ahead is off by default
+and can be enabled in Settings.
+
+On Windows, since 0.8.0, middle-click a scrolling list and move the pointer to
+autoscroll. Click, press Esc, use the wheel or switch windows to stop.
+It works automatically on Windows. On Linux, turn on **Middle-click
+autoscroll** under **Settings > Appearance**; it is off by default because a
+middle click usually pastes there. See [autoscroll](docs/_guide/using-spotifast.md#middle-click-autoscroll).
+
+## Controlling it from outside
+
+The `spotifast` command controls the copy already running, on every
+platform. Each verb prints nothing on success:
+
+```
+spotifast play-pause          spotifast volume 40
+spotifast play                spotifast volume-up [percent]
+spotifast pause               spotifast volume-down [percent]
+spotifast next                spotifast mute
+spotifast previous            spotifast shuffle [on|off]
+spotifast seek 15             spotifast repeat [off|context|track]
+spotifast seek -- -15         spotifast like
+spotifast seek-to 90          spotifast play-uri spotify:playlist:37i9…
+spotifast show                spotifast transfer <device-id>
+spotifast now-playing [--raw] spotifast devices [--raw]
+```
+
+`shuffle` and `repeat` toggle when used without an argument. Pass a state to
+set it directly. `like` adds or removes the playing track from your library.
+
+`now-playing` prints one readable line. `--raw` prints tab-separated fields:
+state, title, artists, album, position_ms, duration_ms, volume, shuffle,
+repeat, art_url, saved, and device. `saved` is `yes`, `no`, or `unknown` while
+loading. New fields are appended to keep older scripts working.
+
+`devices` lists Spotify Connect devices with the ID first and the active one
+marked with `*`. `--raw` prints JSON. The command refreshes the device list,
+so the first call after startup may be empty. Run it again if needed.
+
+A verb exits non-zero when Spotifast is not running.
+
+On every platform, `spotifast <link>` opens a Spotify link, a `spotify:`
+URI or an `open.spotify.com` address, in the running app, or starts the
+app on it. This is what the desktop runs when a link is clicked.
+
+Since 0.9.0, search links open Search with the query filled in,
+without starting playback. They work on a fresh launch or an existing window;
+if signed out, the search waits for sign-in. For example:
+
+```sh
+spotifast 'https://open.spotify.com/search/here%20comes%20the%20sun'
+# Linux, with Spotifast already running:
+playerctl --player=spotifast open 'https://open.spotify.com/search/here%20comes%20the%20sun'
+```
+
+Use `spotify:search:here%20comes%20the%20sun` for the equivalent Spotify URI,
+or `https://open.spotify.com/search` to open an empty search box. Encode spaces
+as `%20`; a `+` in the path remains a literal plus. Ordinary MPRIS playback
+URIs still start playback.
+
+On Linux, Spotifast is also an MPRIS player, so `playerctl
+--player=spotifast play-pause` and media keys work too.
+
+Launchers such as Raycast or Alfred, and the Stream Deck plugin, can use
+these commands. Since the next release, they reach Spotifast through a
+private channel only your user can open (on Windows, a loopback port that
+answers only requests carrying a random token), instead of a fixed port
+any program could reach. Use the command rather than the channel itself.
+
+## Settings
+
+Settings live in one readable JSON file (`~/.config/spotifast/settings.json`
+on Linux). They include the Connect device name, bitrate, normalisation,
+autoplay, gapless playback, the audio backend (PulseAudio/PipeWire or ALSA on
+Linux), audio cache size, theme, sidebar state, whether pages take colour
+from artwork, and the mini player's skin and size.
+Since 0.8.0, you can hide Made for you and Recommended for you
+from Home through JSON preferences; see
+[Home shelves](docs/_reference/settings-and-files.md#home-shelves).
+Custom JSON palettes go in a `themes` folder beside `settings.json`.
+Since 0.11.0, eight palettes (Catppuccin, Nord, Rose Pine, Tokyo Night and
+others) are put there on first start, as files to use, change or delete.
+Select them in Appearance; `spotifast reload-themes` loads additions and updates
+without interrupting playback. See [custom themes and Omarchy integration](docs/_reference/settings-and-files.md#custom-themes).
+New installations default to **Follow system**. On an Omarchy desktop every
+Linux build follows the current palette, and Linux packages also set up the
+per-user template and hook automatically on first launch. Since 0.10.2, on
+Linux, edited palettes and Omarchy theme changes apply without a reload
+command. Existing theme choices and custom files stay intact. The picker lists Follow system, Light and Dark first, then the available Omarchy
+integration and local palettes. The **Open themes folder** button in Settings
+opens the local JSON palette directory.
+The interface follows the operating system's language when Spotifast has a
+translation for it, and English otherwise. **Settings → Appearance → Language**
+picks another one, listed by its own name, and applies it at once; **System**
+follows the computer again. Anything a translation does not cover yet appears
+in English.
+Playback settings apply when you press **Apply and restart playback**.
+The Settings page has its own search: type under the title to narrow the
+rows, clear the field to see everything again.
+You can also check for a new release from Settings. On macOS, the same command
+is in the application menu.
+
+The Windows installer, Mac app, and portable Windows and Linux downloads
+support updates from inside Spotifast. Click the green update button to
+download a release, then choose when to restart and install it. Settings can
+enable automatic background downloads; restarting always waits for your click.
+Closing the update window keeps a download running.
+
+Spotifast checks each download before installing it. An interrupted or damaged
+download leaves the running app alone, and a failed startup restores the
+previous installation. Updates keep your settings and sign-ins. On macOS,
+move Spotifast to Applications before updating it. See
+[how updates are checked and installed](docs/_reference/how-it-connects.md#what-the-client-stores)
+for the technical details.
+
+Package-managed installations continue to update through their package manager,
+including Homebrew, Flatpak, apt, dnf, pacman, Nix, and Cargo. Unrecognized
+installations, the AppImage among them, use the download page. Portable archives identify themselves with
+`spotifast-portable.txt`; older archives need one manual upgrade to an
+update-enabled build.
+
+Since 0.9.0, Off and System proxies apply immediately. HTTP and SOCKS5 apply
+when you press **Apply settings**, and can also be set on the sign-in screen.
+A proxy password uses the system credential store, separately from Spotify
+sign-in. Only confirmed proxy settings are saved; editing a form does not
+change the active connection until you apply it.
+Proxy authentication covers Web requests. Local playback can use only an
+unauthenticated HTTP proxy; with proxy login or SOCKS5 it connects directly.
+
+Caches (audio, artwork) live under the cache directory and can be deleted at
+any time without signing you out.
+Since 0.9.0, downloaded artwork uses less temporary memory while
+being saved to the cache. Visible cards and collection covers use sharper
+640-pixel artwork. Loading transitions may retain up to 64 softened previews
+in addition to the existing artwork-cache budget. These previews reuse decoded
+artwork, so keeping a collection open does not repeatedly reload its cover.
+
+For blank or incorrectly drawn windows, include `spotifast.log` in the bug
+report. Since 0.9.0, it records the app version, platform and active
+OpenGL renderer, plus window-creation errors even when launched without a console.
+
+## How it is built
+
+- `src/player.rs`: librespot playback, mixing, and Spotify Connect state.
+- `src/api/`: shared and personal Web API sessions, routing, concurrency, and
+  rate limits.
+- `src/backend.rs`: the tokio runtime and channels used by the interface.
+- `src/images.rs`: album art loading, caching, and accent-colour extraction.
+- `src/app.rs`, `src/model.rs`, `src/ui/`: state, navigation, and views.
+- `src/single_instance.rs`: the running copy's guard and the remote control
+  the `spotifast` command speaks.
+
+Spotifast pins its Rust toolchain in `rust-toolchain.toml`; `cargo test`
+covers the API models, dual-session routing, PKCE, the player state machine,
+and a headless render of every page, panel, and dialog.
+
+To look at the interface without a Spotify account, build with the `demo`
+feature and start it with sample data:
+
+```bash
+cargo run --features demo -- --demo --demo-page playlist:pl1 --demo-show queue
+```
+
+Demo mode never writes settings. `--demo-shot <PATH>` writes the window to a
+PNG and exits, which is useful for reproducible interface screenshots.
+`--demo-size WIDTHxHEIGHT` sets the window size in logical pixels for that shot.
+`--demo-drag X,Y:X,Y` holds a drag in the shot: it presses at the first point
+and keeps the button down at the second.
+Demo windows ignore saved window geometry and do not save window or interface state.
+Use `--demo-data <DIRECTORY>` to keep demo caches and logs in a separate directory.
+=======
+| Platform | Installation |
+|---|---|
+| **macOS** | `brew install --cask crmne/tap/spotifast`, or [download the Mac app](https://spotifast.rocks/download/#macos). |
+| **Arch Linux** | `yay -S spotifast-bin` |
+| **Windows** | Choose your build on the [Download page](https://spotifast.rocks/download/). |
+| **Other Linux** | Find Flatpak, AppImage, Nix, and other options on the [Download page](https://spotifast.rocks/download/). |
+| **From source** | Follow [Build from source](https://spotifast.rocks/getting-started/#build-from-source) for dependencies and commands. |
+
+## Start listening
+
+1. Open Spotifast and choose **Sign in with Spotify**. Approve access in your
+   browser, then return to the app to see your library.
+2. To listen on this computer, open the device menu in the bottom player bar
+   and choose **Set up playback here**, also available in Settings.
+3. Complete the separate playback approval in your browser. Your computer
+   appears as a Spotify Connect device named **Spotifast**.
+
+Library access and local playback have separate approvals. Spotifast remembers
+both using your computer's protected storage. See
+[Getting started](https://spotifast.rocks/getting-started/) for the full walkthrough
+and [How it connects](https://spotifast.rocks/how-it-connects/) for the details.
+
+## The Winamp mini player
+
+A classic look for your music, with Winamp 2 `.wsz` skins, an equalizer,
+a playlist, and animated sound displays. Switch with **Ctrl+M**
+(**Cmd+Shift+M** on macOS), the shrink button, or Settings.
+
+<p align="center">
+  <img src="docs/assets/images/winamp.png" alt="Spotifast's Winamp mini player with the built-in skin, equalizer, and playlist" width="320">
+</p>
+
+[Explore the mini player](https://spotifast.rocks/winamp/), including skins,
+window sizes, controls, and the return to the main player.
+
+## Music in motion
+
+MilkDrop reacts to music playing on this computer, with more than 10,000
+presets downloaded on first use. Open it from the visualiser button,
+Settings, or the mini player's **V** menu.
+
+![MilkDrop visualiser displaying coloured concentric patterns in Spotifast](docs/assets/images/milkdrop-poster.jpg)
+
+Included on **Linux**, **macOS**, and **Windows Intel/AMD** builds.
+It is not included in the Windows on ARM download.
+[Read the MilkDrop guide](https://spotifast.rocks/milkdrop/) for presets,
+controls, and fullscreen mode.
+
+## Guides and help
+
+The complete guide lives at **[spotifast.rocks](https://spotifast.rocks/)**.
+
+| You want to… | Read |
+|---|---|
+| Sign in, set up playback, or configure themes, fonts, and proxies | [Getting started](https://spotifast.rocks/getting-started/) |
+| Learn shortcuts, command-line controls, and updates | [Everyday use](https://spotifast.rocks/using-spotifast/) |
+| Find configuration and stored files | [Settings and files](https://spotifast.rocks/settings-and-files/) |
+| Understand scrolling performance and reduce loading delays | [Make it even faster](https://spotifast.rocks/make-it-even-faster/) |
+| Understand what is stored and sent | [Privacy](https://spotifast.rocks/privacy/) · [How it connects](https://spotifast.rocks/how-it-connects/) |
+| Check Spotify and librespot limitations | [What Spotify allows](https://spotifast.rocks/what-spotify-allows/) |
+| Understand account risk | [Will my account get banned?](https://spotifast.rocks/what-is-spotifast/#will-my-spotify-account-get-banned) |
+| Report a bug or propose a feature | Read [Contributing](CONTRIBUTING.md), then use the [issue forms](https://github.com/crmne/spotifast/issues/new/choose). |
+>>>>>>>
+
+## Contributing
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening an issue or pull
+request. To look at the interface without a Spotify account, run:
+
+```sh
+cargo run --features demo -- --demo
+```
+
+Translations live in `assets/i18n/`; see
+[Translating Spotifast](docs/_reference/translating.md). Release packaging
+is described in [PACKAGING.md](PACKAGING.md).
+
+## More native apps
+
+**Want WhatsApp just as fast and native?** [ZapFast](https://zapfast.rocks)
+is Spotifast's sibling. Both are built on
+[fastframe](https://github.com/crmne/fastframe).
+
+## Acknowledgements
+
+Spotifast uses [librespot](https://github.com/librespot-org/librespot),
+[egui](https://github.com/emilk/egui), the [Inter](https://rsms.me/inter/)
+typeface (OFL), and [Lucide](https://lucide.dev) icons (ISC).
+
+Spotifast is an independent project and is not affiliated with Spotify.
+Spotify is a trademark of Spotify AB.
+
+Licensed under the [MIT License](LICENSE).
