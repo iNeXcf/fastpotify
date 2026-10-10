@@ -1,6 +1,6 @@
 # Maintainer: iNeXcf
 pkgname=spotifast-plus-git
-pkgver=0.12.0.r801.268de01
+pkgver=0.12.0.r829.d3c81da
 pkgrel=1
 pkgdesc="Spotifast+ native Spotify client with direct type-ahead navigation"
 arch=('x86_64' 'aarch64')
